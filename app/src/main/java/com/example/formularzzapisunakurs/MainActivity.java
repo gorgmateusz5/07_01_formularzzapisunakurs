@@ -12,7 +12,8 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-
+import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -33,6 +34,31 @@ public class MainActivity extends AppCompatActivity {
     private CheckBox cbTerms;
 
     private String birthDate = "";
+    private void submitForm() {
+
+        tvSummary.setText(buildSummary());
+
+        Snackbar.make(
+                        findViewById(R.id.main),
+                        R.string.sent,
+                        Snackbar.LENGTH_LONG
+                )
+                .setAction(R.string.undo, v -> tvSummary.setText(""))
+                .show();
+    }
+
+    private void askForConfirmation() {
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.confirm_title)
+                .setMessage(R.string.confirm_message)
+                .setPositiveButton(
+                        R.string.yes,
+                        (dialog, which) -> submitForm()
+                )
+                .setNegativeButton(R.string.no, null)
+                .show();
+    }
     private boolean validateForm() {
 
         String name = etName.getText().toString().trim();
@@ -148,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener(v -> {
 
             if (validateForm()) {
-                tvSummary.setText(buildSummary());
+                askForConfirmation();
             }
 
         });
