@@ -1,6 +1,7 @@
 
 package com.example.formularzzapisunakurs;
 
+import android.widget.ArrayAdapter;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +16,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
-
+import android.util.Patterns;
+import android.widget.Toast;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -31,6 +33,71 @@ public class MainActivity extends AppCompatActivity {
     private CheckBox cbTerms;
 
     private String birthDate = "";
+    private boolean validateForm() {
+
+        String name = etName.getText().toString().trim();
+
+        if (name.isEmpty()) {
+            etName.setError(getString(R.string.error_name));
+            etName.requestFocus();
+            return false;
+        }
+
+        String email = etEmail.getText().toString().trim();
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            etEmail.setError(getString(R.string.error_email));
+            etEmail.requestFocus();
+            return false;
+        }
+
+        if (birthDate.isEmpty()) {
+            Toast.makeText(
+                    this,
+                    R.string.error_date,
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return false;
+        }
+
+        if (spCourse.getSelectedItemPosition() == 0) {
+            Toast.makeText(
+                    this,
+                    R.string.error_course,
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return false;
+        }
+
+        if (rgMode.getCheckedRadioButtonId() == -1) {
+            Toast.makeText(
+                    this,
+                    R.string.error_mode,
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return false;
+        }
+
+        return true;
+    }
+    private void setUpCourseSpinner() {
+
+        ArrayAdapter<CharSequence> adapter =
+                ArrayAdapter.createFromResource(
+                        this,
+                        R.array.courses,
+                        android.R.layout.simple_spinner_item
+                );
+
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
+
+        spCourse.setAdapter(adapter);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
         tvSummary = findViewById(R.id.tvSummary);
         swNewsletter = findViewById(R.id.swNewsletter);
         cbTerms = findViewById(R.id.cbTerms);
+
+        setUpCourseSpinner();
 
         btnBirthDate.setOnClickListener(v -> showDatePicker());
 
@@ -77,8 +146,13 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         btnSubmit.setOnClickListener(v -> {
-            tvSummary.setText(buildSummary());
+
+            if (validateForm()) {
+                tvSummary.setText(buildSummary());
+            }
+
         });
+
     }
 
     private void showDatePicker() {
